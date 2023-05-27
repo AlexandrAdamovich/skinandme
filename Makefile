@@ -7,11 +7,11 @@ help:  ## Show this help menu
 
 .PHONY: start
 start: stop  ## Start dev docker server
-	@docker-compose -f docker-compose.yml up --build -d;
+	@docker-compose -f docker-compose.yml up --build -d
 
 .PHONY: stop
 stop:  ## Stop dev docker server
-	@docker-compose -f docker-compose.yml stop;
+	@docker-compose -f docker-compose.yml stop
 
 VENV           = venv
 VENV_PYTHON    = $(VENV)/bin/python
