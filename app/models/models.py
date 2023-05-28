@@ -12,11 +12,7 @@ class DeliveryServiceEnum(enum.Enum):
     express = "express"
 
 
-class Base(DeclarativeBase):
-    pass
-
-
-class OrderItemsAssociation(Base):
+class OrderItemsAssociation(db.Model):
     __tablename__ = "order_items_associations"
 
     customer_order_id: Mapped[int] = mapped_column(ForeignKey("customer_orders.id"), primary_key=True)
@@ -27,7 +23,7 @@ class OrderItemsAssociation(Base):
     customer_order: Mapped["CustomerOrder"] = relationship()
 
 
-class Item(Base):
+class Item(db.Model):
     """Item model."""
 
     __tablename__ = "items"
@@ -37,7 +33,7 @@ class Item(Base):
     weight = db.Column(db.Integer)
 
 
-class CustomerOrder(Base):
+class CustomerOrder(db.Model):
     """Customer order model."""
     __tablename__ = "customer_orders"
 
@@ -46,7 +42,7 @@ class CustomerOrder(Base):
     delivery_service = db.Column(
         db.Enum(DeliveryServiceEnum), default=DeliveryServiceEnum.standard, nullable=False
     )
-    items: Mapped[List["OrderItemsAssociation"]] = relationship(back_populates="customer_order")
+    order_items: Mapped[List["OrderItemsAssociation"]] = relationship(back_populates="customer_order")
 
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
     delivery_address_id = db.Column(db.Integer, db.ForeignKey("address.id"))
@@ -55,7 +51,7 @@ class CustomerOrder(Base):
     delivery_address = relationship("Address", foreign_keys=delivery_address_id)
 
 
-class Customer(Base):
+class Customer(db.Model):
     """Customer model."""
     __tablename__ = "customer"
 
@@ -66,7 +62,7 @@ class Customer(Base):
     customer_orders = relationship("CustomerOrder", viewonly=True)
 
 
-class Address(Base):
+class Address(db.Model):
     """Address model."""
     __tablename__ = "address"
 
