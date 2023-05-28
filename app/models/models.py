@@ -2,7 +2,7 @@ import enum
 from typing import List
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.extensions import db
 
@@ -12,8 +12,8 @@ class DeliveryServiceEnum(enum.Enum):
     express = "express"
 
 
-class OrderItemsAssociation(db.Model):
-    __tablename__ = "order_items_associations"
+class OrderItemLink(db.Model):
+    __tablename__ = "order_items_links"
 
     customer_order_id: Mapped[int] = mapped_column(ForeignKey("customer_orders.id"), primary_key=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), primary_key=True)
@@ -42,7 +42,7 @@ class CustomerOrder(db.Model):
     delivery_service = db.Column(
         db.Enum(DeliveryServiceEnum), default=DeliveryServiceEnum.standard, nullable=False
     )
-    order_items: Mapped[List["OrderItemsAssociation"]] = relationship(back_populates="customer_order")
+    items: Mapped[List["OrderItemLink"]] = relationship(back_populates="customer_order")
 
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
     delivery_address_id = db.Column(db.Integer, db.ForeignKey("address.id"))
