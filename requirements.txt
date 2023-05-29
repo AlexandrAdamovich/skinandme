@@ -12,3 +12,4 @@ typing_extensions==4.6.0
 Werkzeug==2.3.4
 marshmallow==3.19.0
 marshmallow-sqlalchemy==0.29.0
+requests==2.31.0
