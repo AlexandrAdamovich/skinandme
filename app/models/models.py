@@ -79,5 +79,3 @@ class Address(db.Model):
     city = db.Column(db.String(255))
     country_code = db.Column(db.String(255))
 
-    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
-    customer = relationship("Customer")

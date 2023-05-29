@@ -17,7 +17,7 @@ class OrderItemSchema(SQLAlchemySchema):
     quantity = auto_field()
 
 
-class AddressSchema(SQLAlchemySchema):
+class OrderAddressNestedSchema(SQLAlchemySchema):
     """
     Serializer for address objects
     """
@@ -36,7 +36,7 @@ class AddressSchema(SQLAlchemySchema):
         """
         Gets value for the recipient field in the serializer
         """
-        return address.customer.first_name + " " + address.customer.last_name
+        return self.context["customer"].first_name + " " + self.context["customer"].last_name
 
 
 class CustomerOrderSchema(SQLAlchemySchema):
@@ -50,4 +50,4 @@ class CustomerOrderSchema(SQLAlchemySchema):
     order_id = auto_field()
     delivery_service = fields.Enum(enum=DeliveryServiceEnum)
     items = Nested(OrderItemSchema, many=True)
-    delivery_address = Nested(AddressSchema)
+    delivery_address = Nested(OrderAddressNestedSchema)
