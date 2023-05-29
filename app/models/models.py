@@ -8,11 +8,17 @@ from app.extensions import db
 
 
 class DeliveryServiceEnum(enum.Enum):
+    """
+    Delivery service types enum
+    """
     standard = "standard"
     express = "express"
 
 
 class OrderItemLink(db.Model):
+    """
+    Many-to-many links model connecting orders with items
+    """
     __tablename__ = "order_items_links"
 
     customer_order_id: Mapped[int] = mapped_column(ForeignKey("customer_orders.id"), primary_key=True)
@@ -72,3 +78,6 @@ class Address(db.Model):
     postcode = db.Column(db.String(255))
     city = db.Column(db.String(255))
     country_code = db.Column(db.String(255))
+
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
+    customer = relationship("Customer")
