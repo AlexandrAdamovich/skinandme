@@ -23,7 +23,7 @@ def test_customer_order_model():
             first_name="Joe",
             last_name="Doe",
         ),
-        address=Address(
+        delivery_address=Address(
             line_1="179 Harrow Road",
             postcode="W2 6NB",
             city="London",
@@ -47,7 +47,7 @@ def test_customer_order_model():
     customer_order = (
         db.session.query(CustomerOrder)
         .filter(CustomerOrder.customer_id == customer.id)
-        .filter(CustomerOrder.address_id == address.id)
+        .filter(CustomerOrder.delivery_address_id == address.id)
         .one()
     )
     assert customer_order.id == 1
