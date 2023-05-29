@@ -57,4 +57,7 @@ class SendOrder(MethodView):
 
 
 api.add_url_rule("/health", view_func=HealthCheck.as_view("health"))
-api.add_url_rule("/send-order/<string:order_id>/<string:provider_id>/", view_func=SendOrder.as_view("send_order"))
+api.add_url_rule(
+    "/send-order/<string:order_id>/shipping-provider/<string:provider_id>/",
+    view_func=SendOrder.as_view("send_order")
+)
