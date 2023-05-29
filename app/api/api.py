@@ -38,7 +38,11 @@ class SendOrder(MethodView):
         """
 
         order = CustomerOrder.query.filter_by(order_id=order_id).first()
-        order_data = CustomerOrderSchema().dump(order)
+        if not order:
+            message = f"Order with ID {order_id} was not found"
+            return make_response({"success": False, "message": message}, HTTPStatus.NOT_FOUND)
+
+        order_data = CustomerOrderSchema(context={"customer": order.customer}).dump(order)
 
         try:
             success = ProviderController(provider_id).send_order(order_data)
