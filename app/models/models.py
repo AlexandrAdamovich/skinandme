@@ -1,3 +1,4 @@
+import datetime
 import enum
 from typing import List
 
@@ -37,6 +38,16 @@ class Item(db.Model):
     weight = db.Column(db.Integer)
 
 
+class ShippingIntervalEnum(enum.Enum):
+    monthly = "monthly"
+    weekly = "weekly"
+
+
+class ShippingProviderEnum(enum.Enum):
+    dhl = "dhl"
+    royal_mail = "royal_mail"
+
+
 class CustomerOrder(db.Model):
     """Customer order model."""
 
@@ -51,10 +62,13 @@ class CustomerOrder(db.Model):
 
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
     delivery_address_id = db.Column(db.Integer, db.ForeignKey("address.id"))
-
     customer = relationship("Customer", foreign_keys=customer_id)
     delivery_address = relationship("Address", foreign_keys=delivery_address_id)
 
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    shipping_interval = db.Column(db.Enum(ShippingIntervalEnum), nullable=True)
+    shipping_provider = db.Column(db.Enum(ShippingProviderEnum), nullable=False)
+    last_sent_at = db.Column(db.DateTime, nullable=True)
 
 class Customer(db.Model):
     """Customer model."""

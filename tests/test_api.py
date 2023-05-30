@@ -7,21 +7,25 @@ from datetime import datetime
 from app.models.models import ShippingEventsEnum
 
 
-def create_test_customer_order():
-    customer_order = CustomerOrder(
-        order_id="test-order",
-        delivery_service="standard",
-        customer=Customer(
+def create_test_customer_order(**kwargs):
+    default_order_data = {
+        "order_id": "test-order",
+        "shipping_provider": "dhl",
+        "delivery_service": "standard",
+        "customer": Customer(
             first_name="Joe",
             last_name="Doe",
         ),
-        delivery_address=Address(
+        "delivery_address": Address(
             line_1="179 Harrow Road",
             postcode="W2 6NB",
             city="London",
             country_code="GB",
         ),
-    )
+    }
+    order_data = {**default_order_data, **kwargs}
+
+    customer_order = CustomerOrder(**order_data)
     db.session.add(customer_order)
     db.session.commit()
 
@@ -48,7 +52,7 @@ def test_send_customer_order__shipping_provider_api_called_with_correct_paramete
     db.session.commit()
 
     with app.test_request_context(), app.test_client() as test_client, session_patch:
-        response = test_client.post(url_for("api.send_order", order_id="test-order", provider_id="dhl"))
+        response = test_client.post(url_for("api.send_order", order_id="test-order"))
 
         expected_outgoing_order_data = {
             "order_id": "test-order",
@@ -79,11 +83,11 @@ def test_send_customer_order_with_invalid_provider__404_error_in_response(app):
     session_patch = patch(
         'app.clients.clients.requests.Session', return_value=session_mock
     )
-    create_test_customer_order()
+    create_test_customer_order(shipping_provider="invalid-provider")
 
     with app.test_request_context(), app.test_client() as test_client, session_patch:
         response = test_client.post(
-            url_for("api.send_order", order_id="test-order", provider_id="invalid-provider")
+            url_for("api.send_order", order_id="test-order")
         )
 
         session_mock.request.assert_not_called()
@@ -102,7 +106,7 @@ def test_send_customer_order_with_invalid_order_id__404_error_in_response(app):
 
     with app.test_request_context(), app.test_client() as test_client, session_patch:
         response = test_client.post(
-            url_for("api.send_order", order_id="test-order", provider_id="dhl")
+            url_for("api.send_order", order_id="test-order")
         )
 
         session_mock.request.assert_not_called()

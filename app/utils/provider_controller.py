@@ -1,10 +1,8 @@
 from app.clients.clients import BaseProviderClient, DHLClient, RoyalMailClient
-from app.controllers.exceptions import UnexpectedProvider
-
-
-class ShippingProviders:
-    dhl = "dhl"
-    royal_mail = "royal_mail"
+from app.utils.exceptions import UnexpectedProvider
+from app.utils.helpers import update_order_last_sent_datetime
+from app.schemas.schemas import CustomerOrderSchema
+from app.models.models import CustomerOrder, ShippingProviderEnum
 
 
 class ProviderController:
@@ -15,11 +13,11 @@ class ProviderController:
     based on provider ID
     """
     shipping_providers_clients = {
-        ShippingProviders.royal_mail: RoyalMailClient,
-        ShippingProviders.dhl: DHLClient
+        ShippingProviderEnum.royal_mail: RoyalMailClient,
+        ShippingProviderEnum.dhl: DHLClient
     }
 
-    def __init__(self, provider_id: str) -> None:
+    def __init__(self, provider_id: ShippingProviderEnum) -> None:
         """
         Initializes the client based on the provider ID
         :param provider_id: ID string of the provider
@@ -30,10 +28,15 @@ class ProviderController:
         else:
             raise UnexpectedProvider
 
-    def send_order(self, order_data: dict) -> bool:
+    def send_order(self, order: CustomerOrder) -> bool:
         """
         Sends order to the shipping provider
-        :param order_data: dictionary containing the order data
+        :param order: Order object which data is to be sent to the provider
         """
-        return self.client.send_order(order_data)
+        order_data = CustomerOrderSchema(context={"customer": order.customer}).dump(order)
+        result = self.client.send_order(order_data)
 
+        if result:
+            update_order_last_sent_datetime(order)
+
+        return result

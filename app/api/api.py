@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 
 from flask import Blueprint, Response, make_response, request
@@ -5,8 +6,9 @@ from flask.views import MethodView
 from marshmallow.exceptions import ValidationError
 from sqlalchemy.sql import text
 
-from app.controllers.exceptions import UnexpectedProvider
-from app.controllers.provider_controller import ProviderController
+from app.utils.exceptions import UnexpectedProvider
+from app.utils.provider_controller import ProviderController
+from app.utils.helpers import update_order_last_sent_datetime
 from app.extensions import db
 from app.models.models import CustomerOrder
 from app.schemas.schemas import CustomerOrderSchema, ShippingEventSchema
@@ -30,7 +32,7 @@ class SendOrder(MethodView):
     """
     API view for sending orders to shipping providers
     """
-    def post(self, order_id: str, provider_id: str) -> Response:
+    def post(self, order_id: str) -> Response:
         """
         Handles post requests for the "/send-order" URL
 
@@ -43,12 +45,10 @@ class SendOrder(MethodView):
             message = f"Order with ID {order_id} was not found"
             return make_response({"success": False, "message": message}, HTTPStatus.NOT_FOUND)
 
-        order_data = CustomerOrderSchema(context={"customer": order.customer}).dump(order)
-
         try:
-            success = ProviderController(provider_id).send_order(order_data)
+            success = ProviderController(order.shipping_provider).send_order(order)
         except UnexpectedProvider:
-            message = f"Provider with ID {provider_id} was not found"
+            message = f"Provider with ID {order.shipping_provider.value} was not found"
             return make_response({"success": False, "message": message}, HTTPStatus.NOT_FOUND)
 
         if success:
@@ -83,7 +83,7 @@ class ShippingProviderEventHandler(MethodView):
 
 api.add_url_rule("/health", view_func=HealthCheck.as_view("health"))
 api.add_url_rule(
-    "/send-order/<string:order_id>/shipping-provider/<string:provider_id>/",
+    "/send-order/<string:order_id>/",
     view_func=SendOrder.as_view("send_order")
 )
 api.add_url_rule(
