@@ -79,3 +79,20 @@ class Address(db.Model):
     city = db.Column(db.String(255))
     country_code = db.Column(db.String(255))
 
+
+class ShippingEventsEnum(enum.Enum):
+    waiting_for_collection = "waiting-for-collection"
+    in_transit = "in-transit"
+    delivered = "delivered"
+    failed = "failed-to-deliver"
+
+
+class ShippingEvent(db.Model):
+
+    __tablename__ = "shipping_events"
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey("customer_orders.id"))
+    order = relationship("CustomerOrder", foreign_keys=order_id)
+    event_name = db.Column(db.Enum(ShippingEventsEnum), nullable=False)
+    event_time = db.Column(db.DateTime, nullable=False)

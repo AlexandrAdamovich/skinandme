@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 from marshmallow_sqlalchemy.fields import fields, Nested
-
-from app.models.models import CustomerOrder, OrderItemLink, DeliveryServiceEnum, Address
+from marshmallow.exceptions import ValidationError
+from app.models.models import CustomerOrder, OrderItemLink, DeliveryServiceEnum, Address, ShippingEvent, ShippingEventsEnum
 
 
 class OrderItemSchema(SQLAlchemySchema):
@@ -51,3 +51,36 @@ class CustomerOrderSchema(SQLAlchemySchema):
     delivery_service = fields.Enum(enum=DeliveryServiceEnum)
     items = Nested(OrderItemSchema, many=True)
     delivery_address = Nested(OrderAddressNestedSchema)
+
+
+class ShippingEventSchema(SQLAlchemySchema):
+    """
+    Schema for deserializing json shipping events into objects
+    """
+    class Meta:
+        model = ShippingEvent
+        load_instance = True
+
+    event_time = fields.DateTime()
+    event_name = fields.Enum(enum=ShippingEventsEnum)
+    order_id = fields.Method(serialize="get_str_order_id", deserialize="convert_order_id_str_to_int")
+
+    def get_str_order_id(self, obj):
+        """
+        Expose public string ID of the order instead of the internal one
+        """
+        return obj.order.order_id
+
+    def convert_order_id_str_to_int(self, str_order_id):
+        """
+        Deserialization method to turn a public string order ID
+        into an internal integer order ID
+        """
+        order = CustomerOrder.query.filter_by(order_id=str_order_id).first()
+        if not order:
+            message = f"Order with string ID {str_order_id} was not found"
+            raise ValidationError(message, "order_id", str_order_id)
+
+        return order.id
+
+

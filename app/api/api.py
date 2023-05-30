@@ -1,14 +1,15 @@
 from http import HTTPStatus
 
-from flask import Blueprint, Response, make_response
+from flask import Blueprint, Response, make_response, request
 from flask.views import MethodView
+from marshmallow.exceptions import ValidationError
 from sqlalchemy.sql import text
 
 from app.controllers.exceptions import UnexpectedProvider
 from app.controllers.provider_controller import ProviderController
 from app.extensions import db
 from app.models.models import CustomerOrder
-from app.schemas.schemas import CustomerOrderSchema
+from app.schemas.schemas import CustomerOrderSchema, ShippingEventSchema
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -60,8 +61,23 @@ class SendOrder(MethodView):
         return make_response({"success": success, "message": message}, status)
 
 
+class ShippingProviderEventHandler(MethodView):
+    def post(self):
+        try:
+            shipping_event = ShippingEventSchema(session=db.session).load(request.json)
+        except ValidationError as exc:
+            return make_response({"message": exc.messages}, HTTPStatus.BAD_REQUEST)
+        db.session.add(shipping_event)
+        db.session.commit()
+
+        return make_response({"message": "OK"}, HTTPStatus.OK)
+
+
 api.add_url_rule("/health", view_func=HealthCheck.as_view("health"))
 api.add_url_rule(
     "/send-order/<string:order_id>/shipping-provider/<string:provider_id>/",
     view_func=SendOrder.as_view("send_order")
+)
+api.add_url_rule(
+    "/handle-shipping-event/", view_func=ShippingProviderEventHandler.as_view("handle_shipping_event")
 )

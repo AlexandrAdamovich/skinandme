@@ -3,5 +3,6 @@ from .models import (
     Customer,
     CustomerOrder,
     Item,
-    OrderItemLink
+    OrderItemLink,
+    ShippingEvent
 )
