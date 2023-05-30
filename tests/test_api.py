@@ -7,15 +7,7 @@ from datetime import datetime
 from app.models.models import ShippingEventsEnum
 
 
-def test_send_customer_order__shipping_provider_api_called_with_correct_parameters(app):
-    """Test customer order model."""
-
-    response_mock = Mock(json=Mock(return_value={}), status_code=200)
-    session_mock = Mock(request=Mock(return_value=response_mock))
-    session_patch = patch(
-        'app.clients.clients.requests.Session', return_value=session_mock
-    )
-
+def create_test_customer_order():
     customer_order = CustomerOrder(
         order_id="test-order",
         delivery_service="standard",
@@ -30,15 +22,31 @@ def test_send_customer_order__shipping_provider_api_called_with_correct_paramete
             country_code="GB",
         ),
     )
+    db.session.add(customer_order)
+    db.session.commit()
+
+    return customer_order
+
+
+def test_send_customer_order__shipping_provider_api_called_with_correct_parameters(app):
+    """Test customer order model."""
+
+    response_mock = Mock(json=Mock(return_value={}), status_code=200)
+    session_mock = Mock(request=Mock(return_value=response_mock))
+    session_patch = patch(
+        'app.clients.clients.requests.Session', return_value=session_mock
+    )
+
+    customer_order = create_test_customer_order()
 
     order_item_link = OrderItemLink(
         customer_order=customer_order,
         item=Item(item_id="mercedes", weight=200000),
         quantity=3
     )
-    db.session.add(customer_order)
     db.session.add(order_item_link)
     db.session.commit()
+
     with app.test_request_context(), app.test_client() as test_client, session_patch:
         response = test_client.post(url_for("api.send_order", order_id="test-order", provider_id="dhl"))
 
@@ -71,23 +79,7 @@ def test_send_customer_order_with_invalid_provider__404_error_in_response(app):
     session_patch = patch(
         'app.clients.clients.requests.Session', return_value=session_mock
     )
-    customer_order = CustomerOrder(
-        order_id="test-order",
-        delivery_service="standard",
-        customer=Customer(
-            first_name="Joe",
-            last_name="Doe",
-        ),
-        delivery_address=Address(
-            line_1="179 Harrow Road",
-            postcode="W2 6NB",
-            city="London",
-            country_code="GB",
-        ),
-    )
-
-    db.session.add(customer_order)
-    db.session.commit()
+    create_test_customer_order()
 
     with app.test_request_context(), app.test_client() as test_client, session_patch:
         response = test_client.post(
@@ -119,22 +111,7 @@ def test_send_customer_order_with_invalid_order_id__404_error_in_response(app):
 
 
 def test_handle_shipping_event_endpoint__shipping_event_saved_into_db_linked_to_order(app):
-    customer_order = CustomerOrder(
-        order_id="test-order",
-        delivery_service="standard",
-        customer=Customer(
-            first_name="Joe",
-            last_name="Doe",
-        ),
-        delivery_address=Address(
-            line_1="179 Harrow Road",
-            postcode="W2 6NB",
-            city="London",
-            country_code="GB",
-        ),
-    )
-    db.session.add(customer_order)
-    db.session.commit()
+    customer_order = create_test_customer_order()
 
     event_time = datetime.now()
     shipping_event = {
@@ -156,23 +133,9 @@ def test_handle_shipping_event_endpoint__shipping_event_saved_into_db_linked_to_
         assert shipping_event_obj.event_name == ShippingEventsEnum.delivered
         assert shipping_event_obj.event_time == event_time
 
+
 def test_handle_shipping_event_with_invalid_order_id__400_error_in_response(app):
-    customer_order = CustomerOrder(
-        order_id="test-order",
-        delivery_service="standard",
-        customer=Customer(
-            first_name="Joe",
-            last_name="Doe",
-        ),
-        delivery_address=Address(
-            line_1="179 Harrow Road",
-            postcode="W2 6NB",
-            city="London",
-            country_code="GB",
-        ),
-    )
-    db.session.add(customer_order)
-    db.session.commit()
+    customer_order = create_test_customer_order()
 
     event_time = datetime.now()
     shipping_event = {
@@ -193,23 +156,9 @@ def test_handle_shipping_event_with_invalid_order_id__400_error_in_response(app)
         shipping_event_obj = ShippingEvent.query.filter_by(order_id=customer_order.id).first()
         assert shipping_event_obj is None
 
+
 def test_handle_shipping_event_with_invalid_event_name__400_error_in_response(app):
-    customer_order = CustomerOrder(
-        order_id="test-order",
-        delivery_service="standard",
-        customer=Customer(
-            first_name="Joe",
-            last_name="Doe",
-        ),
-        delivery_address=Address(
-            line_1="179 Harrow Road",
-            postcode="W2 6NB",
-            city="London",
-            country_code="GB",
-        ),
-    )
-    db.session.add(customer_order)
-    db.session.commit()
+    customer_order = create_test_customer_order()
 
     event_time = datetime.now()
     shipping_event = {
