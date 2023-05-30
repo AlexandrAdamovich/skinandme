@@ -9,7 +9,10 @@ class ShippingProviders:
 
 class ProviderController:
     """
-    Factory class for handling requests to shipping providers
+    Controller class for handling requests to shipping providers
+
+    It includes a factory method to determine the shipping provider client
+    based on provider ID
     """
     shipping_providers_clients = {
         ShippingProviders.royal_mail: RoyalMailClient,

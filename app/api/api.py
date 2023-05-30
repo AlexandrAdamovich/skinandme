@@ -32,7 +32,7 @@ class SendOrder(MethodView):
     """
     def post(self, order_id: str, provider_id: str) -> Response:
         """
-        Handles post requests for the "send-order" URL
+        Handles post requests for the "/send-order" URL
 
         :param: order_id - order ID string to identify the order
         :param: provider_id - provider ID string to identify the provider
@@ -62,11 +62,19 @@ class SendOrder(MethodView):
 
 
 class ShippingProviderEventHandler(MethodView):
+    """
+    API view for receiving shipping events from shipping providers
+    """
     def post(self):
+        """
+        Handles post requests for "/handle-shipping-event URL
+        """
+
         try:
             shipping_event = ShippingEventSchema(session=db.session).load(request.json)
         except ValidationError as exc:
             return make_response({"message": exc.messages}, HTTPStatus.BAD_REQUEST)
+
         db.session.add(shipping_event)
         db.session.commit()
 

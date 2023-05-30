@@ -8,17 +8,15 @@ from app.extensions import db
 
 
 class DeliveryServiceEnum(enum.Enum):
-    """
-    Delivery service types enum
-    """
+    """Delivery service types enum"""
+
     standard = "standard"
     express = "express"
 
 
 class OrderItemLink(db.Model):
-    """
-    Many-to-many links model connecting orders with items
-    """
+    """Many-to-many links model connecting orders with items"""
+
     __tablename__ = "order_items_links"
 
     customer_order_id: Mapped[int] = mapped_column(ForeignKey("customer_orders.id"), primary_key=True)
@@ -41,6 +39,7 @@ class Item(db.Model):
 
 class CustomerOrder(db.Model):
     """Customer order model."""
+
     __tablename__ = "customer_orders"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -59,6 +58,7 @@ class CustomerOrder(db.Model):
 
 class Customer(db.Model):
     """Customer model."""
+
     __tablename__ = "customer"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -70,6 +70,7 @@ class Customer(db.Model):
 
 class Address(db.Model):
     """Address model."""
+
     __tablename__ = "address"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -81,6 +82,8 @@ class Address(db.Model):
 
 
 class ShippingEventsEnum(enum.Enum):
+    """Enum declaring possible types of shipping events"""
+
     waiting_for_collection = "waiting-for-collection"
     in_transit = "in-transit"
     delivered = "delivered"
@@ -88,6 +91,7 @@ class ShippingEventsEnum(enum.Enum):
 
 
 class ShippingEvent(db.Model):
+    """Shipping event model."""
 
     __tablename__ = "shipping_events"
 
