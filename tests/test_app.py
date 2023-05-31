@@ -21,6 +21,8 @@ def test_customer_order_model():
     """Test customer order model."""
 
     customer_order = CustomerOrder(
+        order_id="test-order",
+        shipping_provider="dhl",
         customer=Customer(
             first_name="Joe",
             last_name="Doe",
@@ -64,6 +66,7 @@ def test_shipping_event_model():
         event_time=event_time,
         order=CustomerOrder(
             order_id="test-order",
+            shipping_provider="dhl",
             customer=Customer(
                 first_name="Joe",
                 last_name="Doe",
