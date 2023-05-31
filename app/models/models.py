@@ -8,6 +8,11 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.extensions import db
 
 
+"""
+Given more time I would add database migration system to the app (version control for db changes)
+"""
+
+
 class DeliveryServiceEnum(enum.Enum):
     """Delivery service types enum"""
 
@@ -55,7 +60,7 @@ class CustomerOrder(db.Model):
     __tablename__ = "customer_orders"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    order_id = db.Column(db.String(35), unique=True)
+    order_id = db.Column(db.String(35), unique=True, nullable=False)
     delivery_service = db.Column(
         db.Enum(DeliveryServiceEnum), default=DeliveryServiceEnum.standard, nullable=False
     )

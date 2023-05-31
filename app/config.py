@@ -21,11 +21,6 @@ class Config:
     SQLALCHEMY_DATABASE_URI = (
         f"mysql://{MYSQL_USER}:{MYSQL_ROOT_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
     )
-    CELERY = {
-        "broker_url": "redis://localhost",
-        "result_backend": "redis://localhost",
-        "task_ignore_result": True
-    }
 
 
 class TestingConfig(Config):

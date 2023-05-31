@@ -1,5 +1,9 @@
 import requests
 
+"""
+Given more time I would add more viable logging
+"""
+
 
 class HttpClient:
     """

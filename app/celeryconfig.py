@@ -9,9 +9,9 @@ broker_url = "redis://redis:6379/"
 result_backend = "redis://redis:6379"
 
 beat_schedule = {
-    'test-celery': {
+    'send-periodic-orders': {
         'task': 'app.tasks.send_periodic_orders.send_periodic_orders',
         # Every minute
-        'schedule': crontab(hour=0, minute=0),
+        'schedule': crontab(minute="*"),
     }
 }
