@@ -71,6 +71,7 @@ class CustomerOrder(db.Model):
     shipping_provider = db.Column(db.Enum(ShippingProviderEnum), nullable=False)
     last_sent_at = db.Column(db.DateTime, nullable=True)
 
+
 class Customer(db.Model):
     """Customer model."""
 

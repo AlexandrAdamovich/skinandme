@@ -1,4 +1,3 @@
-
 import celery
 from celery.utils.log import get_task_logger
 from app.models.models import CustomerOrder, ShippingIntervalEnum
@@ -11,6 +10,11 @@ logger = get_task_logger(__name__)
 
 @celery.shared_task()
 def send_periodic_orders():
+    """
+    Periodic tasks that is to be run every day
+    to check if any weekly or monthly orders are due for sending
+    """
+
     monthly_orders = CustomerOrder.query.filter_by(
         shipping_interval=ShippingIntervalEnum.monthly
     ).all()

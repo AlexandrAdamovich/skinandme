@@ -1,4 +1,3 @@
-from datetime import datetime
 from http import HTTPStatus
 
 from flask import Blueprint, Response, make_response, request
@@ -6,12 +5,11 @@ from flask.views import MethodView
 from marshmallow.exceptions import ValidationError
 from sqlalchemy.sql import text
 
-from app.utils.exceptions import UnexpectedProvider
-from app.utils.provider_controller import ProviderController
-from app.utils.helpers import update_order_last_sent_datetime
 from app.extensions import db
 from app.models.models import CustomerOrder
-from app.schemas.schemas import CustomerOrderSchema, ShippingEventSchema
+from app.schemas.schemas import ShippingEventSchema
+from app.utils.exceptions import UnexpectedProvider
+from app.utils.provider_controller import ProviderController
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
