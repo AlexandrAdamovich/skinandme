@@ -5,6 +5,7 @@ RUN apk update \
     gcc \
     musl-dev \
     mariadb-connector-c-dev \
+    bash  \
   && python -m pip install --upgrade pip
 
 WORKDIR /opt/app
