@@ -15,6 +15,15 @@ services:
       timeout: 20s
       retries: 10
 
+  redis:
+      image: redis:7.0.6
+      platform: linux/amd64
+      ports:
+        - "6379:6379"
+      volumes:
+        - "redis:/data"
+      healthcheck:
+        test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
   app:
     build:
       context: .
@@ -22,12 +31,41 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - ./environments/dev.txt
     ports:
       - 5000:5000
     volumes:
       - .:/opt/app:delegated
+  celery_worker:
+    build:
+      context: "."
+    image: app
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./environments/dev.txt
+    volumes:
+      - .:/opt/app:delegated
+    command: >
+      celery -A app.make_celery worker --loglevel "${CELERY_LOG_LEVEL:-INFO}"
+
+  celery-beat:
+    build:
+      context: "."
+    image: app
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./environments/dev.txt
+    volumes:
+      - .:/opt/app:delegated
+    command: celery -A app.make_celery beat --loglevel "${CELERY_LOG_LEVEL:-INFO}"
 
 volumes:
   mysql-data:
+  redis: {}
