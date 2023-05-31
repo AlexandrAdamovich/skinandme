@@ -83,7 +83,7 @@ def test_send_customer_order_with_invalid_provider__404_error_in_response(app):
     session_patch = patch(
         'app.clients.clients.requests.Session', return_value=session_mock
     )
-    create_test_customer_order(shipping_provider="invalid-provider")
+    create_test_customer_order(shipping_provider="amazon_prime")
 
     with app.test_request_context(), app.test_client() as test_client, session_patch:
         response = test_client.post(
@@ -92,7 +92,7 @@ def test_send_customer_order_with_invalid_provider__404_error_in_response(app):
 
         session_mock.request.assert_not_called()
         assert response.status_code == 404
-        assert response.json == {"success": False, "message": f"Provider with ID invalid-provider was not found"}
+        assert response.json == {"success": False, "message": f"Provider with ID amazon_prime was not found"}
 
 
 def test_send_customer_order_with_invalid_order_id__404_error_in_response(app):

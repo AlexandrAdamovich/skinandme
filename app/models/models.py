@@ -46,6 +46,7 @@ class ShippingIntervalEnum(enum.Enum):
 class ShippingProviderEnum(enum.Enum):
     dhl = "dhl"
     royal_mail = "royal_mail"
+    amazon_prime = "amazon_prime"
 
 
 class CustomerOrder(db.Model):
