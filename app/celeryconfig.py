@@ -11,7 +11,7 @@ result_backend = "redis://redis:6379"
 beat_schedule = {
     'send-periodic-orders': {
         'task': 'app.tasks.send_periodic_orders.send_periodic_orders',
-        # Every minute
-        'schedule': crontab(minute="*"),
+        # Every day
+        'schedule': crontab(hour=0, minute=0),
     }
 }
