@@ -1,39 +1,16 @@
+from datetime import datetime
+
 from flask import url_for
 from mock import patch, Mock
-from app.extensions import db
-from app.models import Address, Customer, CustomerOrder, Item, OrderItemLink, ShippingEvent
+
 from app.clients.clients import DHLClient
-from datetime import datetime
+from app.extensions import db
+from app.models import Item, OrderItemLink, ShippingEvent
 from app.models.models import ShippingEventsEnum
-
-
-def create_test_customer_order(**kwargs):
-    default_order_data = {
-        "order_id": "test-order",
-        "shipping_provider": "dhl",
-        "delivery_service": "standard",
-        "customer": Customer(
-            first_name="Joe",
-            last_name="Doe",
-        ),
-        "delivery_address": Address(
-            line_1="179 Harrow Road",
-            postcode="W2 6NB",
-            city="London",
-            country_code="GB",
-        ),
-    }
-    order_data = {**default_order_data, **kwargs}
-
-    customer_order = CustomerOrder(**order_data)
-    db.session.add(customer_order)
-    db.session.commit()
-
-    return customer_order
+from tests.test_utils import create_test_customer_order
 
 
 def test_send_customer_order__shipping_provider_api_called_with_correct_parameters(app):
-    """Test customer order model."""
 
     response_mock = Mock(json=Mock(return_value={}), status_code=200)
     session_mock = Mock(request=Mock(return_value=response_mock))
@@ -76,7 +53,6 @@ def test_send_customer_order__shipping_provider_api_called_with_correct_paramete
 
 
 def test_send_customer_order_with_invalid_provider__404_error_in_response(app):
-    """Test customer order model."""
 
     response_mock = Mock(json=Mock(return_value={}), status_code=200)
     session_mock = Mock(request=Mock(return_value=response_mock))
@@ -96,7 +72,6 @@ def test_send_customer_order_with_invalid_provider__404_error_in_response(app):
 
 
 def test_send_customer_order_with_invalid_order_id__404_error_in_response(app):
-    """Test customer order model."""
 
     response_mock = Mock(json=Mock(return_value={}), status_code=200)
     session_mock = Mock(request=Mock(return_value=response_mock))

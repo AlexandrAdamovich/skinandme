@@ -56,7 +56,7 @@ def test_customer_order_model():
 
 
 def test_shipping_event_model():
-    """Test customer order model."""
+    """Test shipping event model."""
 
     event_time = datetime.now()
     shipping_event = ShippingEvent(
